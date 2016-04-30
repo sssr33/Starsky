@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{bc2fb32f-2098-44fc-863e-bb1d962cc5fa}</ItemsProjectGuid>
+    <ItemsRootNamespace>StarskyMain</ItemsRootNamespace>
+    <ItemsProjectName>StarskyMain</ItemsProjectName>
+    <CodeSharingProject>248F659F-DAC5-46E8-AC09-60EC9FC95053</CodeSharingProject>
+    <ItemsSccProjectName>SAK</ItemsSccProjectName>
+    <ItemsSccAuxPath>SAK</ItemsSccAuxPath>
+    <ItemsSccLocalPath>SAK</ItemsSccLocalPath>
+    <ItemsSccProvider>SAK</ItemsSccProvider>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Class1.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\D2DCtxMt.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\D3dStructWrappers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\Dx.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\DxDevice.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\DxDeviceCtx.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\DxDeviceMt.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\DxHelpers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\MappedResource.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\State\OMRenderTargetState.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\State\RenderTargetState.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Dx\State\RSViewportState.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Starsky.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)StarskyWinRtRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRendererMain.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Class1.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\D2DCtxMt.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\D3dStructWrappers.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\Dx.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\DxDevice.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\DxDeviceCtx.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\DxDeviceMt.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Dx\MappedResource.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Starsky.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)StarskyWinRtRenderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+</Project>

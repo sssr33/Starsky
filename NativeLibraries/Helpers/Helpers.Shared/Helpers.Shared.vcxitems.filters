@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\ChunkedDataBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\ConcurrentQueue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\service\Operation.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\service\Service.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\ThreadPool.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\ThreadTask.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\ThreadTaskBase.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverterCopy.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverterFactory.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverterStd8Bit.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Text\UriCodec.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\WinRT\HDataWinRT.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\AlignedAllocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\async_class.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\bit_view.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\cond_add_reference.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\config.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\H.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\HData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\HMath.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\HSystem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\HText.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\HTime.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\ImageUtils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\ImageUtilsEncodeOptions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\rational.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\raw_ptr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\result.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\ScopedTimer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Timer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Metainfo\Signature.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\PPL\critical_section_lock.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\CoUniquePtr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\coroutine3.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\PPL\critical_section_guard.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Metainfo\PointerGetter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Metainfo\RawType.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\EnumClassBitFlagOperators.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\array_wrapper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\ArrayIBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\comptr_vector.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\dynamic_stack_array.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\vector_pool.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\vector_queue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\VectorIBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\PPL\safe_task.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\FZMatrixUnion.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Macros.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\condition_variable.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Thread\critical_section.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\TypeConverter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\ConcurrencyVector.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\ScopedValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Meta\ZeroDefaultValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\AABB.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Comparators.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Hashers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\ToString.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\StopWatch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)libhelpers\Containers\comptr_array.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverter.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\PixelConverter\PixelConverterCopy.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\Text\UriCodec.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\Timer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\Containers\ConcurrencyVector.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)libhelpers\AABB.cpp" />
+  </ItemGroup>
+</Project>
