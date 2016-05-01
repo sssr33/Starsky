@@ -19,6 +19,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRendererMain.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IOutput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRendererFactory.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\WinRtRenderer2.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\SwapChainPanelOutput2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Class1.cpp" />
@@ -36,5 +41,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)StarskyWinRtRenderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRenderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRenderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IOutput.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRendererFactory.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\WinRtRenderer2.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\SwapChainPanelOutput2.cpp" />
   </ItemGroup>
 </Project>
