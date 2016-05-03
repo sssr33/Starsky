@@ -87,6 +87,13 @@ void SwapChainPanelOutput2::EndRender() {
 	this->Present();
 }
 
+void SwapChainPanelOutput2::Resize(const DirectX::XMFLOAT2 &size) {
+	if (this->logicalSize.x != size.x || this->logicalSize.y != size.y) {
+		this->logicalSize = size;
+		this->CreateWindowSizeDependentResources();
+	}
+}
+
 void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
 	// Clear the previous window size specific context.
 	HRESULT hr = S_OK;

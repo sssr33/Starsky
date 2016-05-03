@@ -1,6 +1,6 @@
 #pragma once
-#include "StarskyWinRtRenderer.h"
-#include "WinRtRenderer\WinRtRendererMain.h"
+#include "StarskyRenderer.h"
+#include "WinRtRenderer2\WinRtRenderer2.h"
 
 namespace StarskyMain {
 	[Windows::Foundation::Metadata::WebHostHiddenAttribute]
@@ -10,6 +10,6 @@ namespace StarskyMain {
 		virtual ~Starsky();
 
 	private:
-		WinRtRendererMain<StarskyWinRtRenderer> renderer;
+		WinRtRenderer2<StarskyRenderer> renderer;
 	};
 }

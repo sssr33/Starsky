@@ -33,9 +33,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Starsky.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StarskyWinRtRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)StarskyRenderer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IOutput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRenderer.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRendererFactory.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\SwapChainPanelOutput2.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer2\WinRtRenderer2.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.h" />
@@ -56,11 +56,10 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)Starsky.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StarskyWinRtRenderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)StarskyRenderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IOutput.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRenderer.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\IRendererFactory.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\SwapChainPanelOutput2.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\WinRtRenderer2.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\SwapChainPanelOutput.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer\WinRtRenderer.cpp" />
   </ItemGroup>

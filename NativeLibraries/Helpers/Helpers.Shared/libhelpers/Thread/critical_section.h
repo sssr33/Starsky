@@ -2,6 +2,8 @@
 #include "..\Macros.h"
 
 #include <Windows.h>
+#include <thread>
+#include <chrono>
 
 namespace thread {
 	class condition_variable;
@@ -24,34 +26,53 @@ namespace thread {
 		friend class condition_variable;
 
 	public:
-		class scoped_lock {
+
+		template <bool b> struct lock_yielder {
+			lock_yielder() {}
+		};
+
+		template <> struct lock_yielder<true> {
+			lock_yielder() {
+				// http://stackoverflow.com/questions/17325888/c11-thread-waiting-behaviour-stdthis-threadyield-vs-stdthis-thread
+				// http://stackoverflow.com/questions/3992715/critical-section-problem-in-windows-7
+				std::this_thread::sleep_for(std::chrono::nanoseconds(1)); // ok, nanotechnology is on duty
+				//Sleep(1); - almost ok, but this is a whole 1 millisecond!
+				//std::this_thread::yield(); - a bit better
+				//Sleep(0);// - better
+				// no wait - works really bad for fast lock/unlock scenarios
+			}
+		};
+
+		template<bool yielding>
+		class scoped_lock_base {
 		public:
-			scoped_lock()
+			scoped_lock_base()
 				: cs(nullptr) {
 			}
 
-			scoped_lock(critical_section &cs)
+			scoped_lock_base(critical_section &cs)
 				: cs(&cs) {
 				EnterCriticalSection(&this->cs->cs);
 			}
 
-			scoped_lock(const scoped_lock &other) = delete;
+			scoped_lock_base(const scoped_lock_base &other) = delete;
 
-			scoped_lock(scoped_lock &&other)
+			scoped_lock_base(scoped_lock_base &&other)
 				: cs(other.cs)
 			{
 				other.cs = nullptr;
 			}
 
-			~scoped_lock() {
+			~scoped_lock_base() {
 				if (this->cs) {
 					LeaveCriticalSection(&this->cs->cs);
+					lock_yielder<yielding> yielder; // performing yielding logic
 				}
 			}
 
-			scoped_lock &operator=(const scoped_lock &other) = delete;
+			scoped_lock_base &operator=(const scoped_lock_base &other) = delete;
 
-			scoped_lock &operator=(scoped_lock &&other) {
+			scoped_lock_base &operator=(scoped_lock_base &&other) {
 				if (this != &other) {
 					if (this->cs) {
 						LeaveCriticalSection(&this->cs->cs);
@@ -66,5 +87,24 @@ namespace thread {
 		private:
 			critical_section *cs;
 		};
+
+		// for common use
+		typedef scoped_lock_base<false> scoped_lock;
+
+		/* 
+		for use in sections with fast can occur
+		example of such section:
+		1   while(true){
+		2     // no work at this line...
+		3   scoped_yield_lock lk(cs);
+		4   some work...
+		      // no work after lk is out of scope...
+		      // because after 4th line we will go to next iteration of while(i.e. 1st line)
+		      // here is a *very small* period of time so scoped_lock can be loked by *this* thread
+		      // while other thread can wait for a long time
+			  // http://stackoverflow.com/questions/3992715/critical-section-problem-in-windows-7
+		5   }
+		*/
+		typedef scoped_lock_base<true> scoped_yield_lock;
 	};
 }

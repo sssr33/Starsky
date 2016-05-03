@@ -21,6 +21,8 @@ public:
 	void BeginRender();
 	void EndRender();
 
+	void Resize(const DirectX::XMFLOAT2 &size);
+
 private:
 	raw_ptr<DxDevice> dxDev;
 	Windows::UI::Xaml::Controls::SwapChainPanel ^swapChainPanel;
