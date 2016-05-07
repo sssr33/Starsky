@@ -13,15 +13,23 @@ public:
 		Windows::UI::Xaml::Controls::SwapChainPanel ^swapChainPanel);
 	virtual ~SwapChainPanelOutput2();
 
-	D3D11_VIEWPORT GetScreenViewport() const;
-	ID3D11RenderTargetView *GetRtView();
+	virtual float GetLogicalDpi() const override;
+	virtual DirectX::XMFLOAT2 GetLogicalSize() const override;
+	virtual D3D11_VIEWPORT GetD3DViewport() const override;
+	virtual ID3D11RenderTargetView *GetD3DRtView() const override;
+	virtual ID2D1Bitmap1 *GetD2DRtView() const override;
 
-	void Present();
+	Windows::UI::Xaml::Controls::SwapChainPanel ^GetSwapChainPanel() const;
+
+	void SetLogicalDpi(float v);
+	void SetLogicalSize(const DirectX::XMFLOAT2 &v);
+	DirectX::XMFLOAT2 GetCompositionScale() const;
+	void SetCompositionScale(const DirectX::XMFLOAT2 &v);
+	void Resize();
 
 	void BeginRender();
 	void EndRender();
-
-	void Resize(const DirectX::XMFLOAT2 &size);
+	void Present();
 
 private:
 	raw_ptr<DxDevice> dxDev;

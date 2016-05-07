@@ -30,7 +30,15 @@ SwapChainPanelOutput2::SwapChainPanelOutput2(
 SwapChainPanelOutput2::~SwapChainPanelOutput2() {
 }
 
-D3D11_VIEWPORT SwapChainPanelOutput2::GetScreenViewport() const {
+float SwapChainPanelOutput2::GetLogicalDpi() const {
+	return this->logicalDpi;
+}
+
+DirectX::XMFLOAT2 SwapChainPanelOutput2::GetLogicalSize() const {
+	return this->logicalSize;
+}
+
+D3D11_VIEWPORT SwapChainPanelOutput2::GetD3DViewport() const {
 	D3D11_VIEWPORT viewport;
 
 	viewport.TopLeftX = viewport.TopLeftY = 0.0f;
@@ -42,8 +50,50 @@ D3D11_VIEWPORT SwapChainPanelOutput2::GetScreenViewport() const {
 	return viewport;
 }
 
-ID3D11RenderTargetView *SwapChainPanelOutput2::GetRtView() {
+ID3D11RenderTargetView *SwapChainPanelOutput2::GetD3DRtView() const {
 	return this->d3dRenderTargetView.Get();
+}
+
+ID2D1Bitmap1 *SwapChainPanelOutput2::GetD2DRtView() const {
+	return this->d2dTargetBitmap.Get();
+}
+
+Windows::UI::Xaml::Controls::SwapChainPanel ^SwapChainPanelOutput2::GetSwapChainPanel() const {
+	return this->swapChainPanel;
+}
+
+void SwapChainPanelOutput2::SetLogicalDpi(float v) {
+	this->logicalDpi = v;
+}
+
+void SwapChainPanelOutput2::SetLogicalSize(const DirectX::XMFLOAT2 &v) {
+	this->logicalSize = v;
+}
+
+DirectX::XMFLOAT2 SwapChainPanelOutput2::GetCompositionScale() const {
+	return this->compositionScale;
+}
+
+void SwapChainPanelOutput2::SetCompositionScale(const DirectX::XMFLOAT2 &v) {
+	this->compositionScale = v;
+}
+
+void SwapChainPanelOutput2::Resize() {
+	this->CreateWindowSizeDependentResources();
+}
+
+void SwapChainPanelOutput2::BeginRender() {
+	auto rtView = this->GetD3DRtView();
+	ID3D11RenderTargetView *const targets[1] = { this->GetD3DRtView() };
+	auto ctx = this->dxDev->GetContext();
+
+	ctx->D3D()->OMSetRenderTargets(1, targets, nullptr);
+
+	ctx->D3D()->ClearRenderTargetView(this->GetD3DRtView(), DirectX::Colors::CornflowerBlue);
+}
+
+void SwapChainPanelOutput2::EndRender() {
+	this->Present();
 }
 
 void SwapChainPanelOutput2::Present() {
@@ -71,27 +121,6 @@ void SwapChainPanelOutput2::Present() {
 	//{
 	//	DX::ThrowIfFailed(hr);
 	//}
-}
-
-void SwapChainPanelOutput2::BeginRender() {
-	auto rtView = this->GetRtView();
-	ID3D11RenderTargetView *const targets[1] = { this->GetRtView() };
-	auto ctx = this->dxDev->GetContext();
-
-	ctx->D3D()->OMSetRenderTargets(1, targets, nullptr);
-
-	ctx->D3D()->ClearRenderTargetView(this->GetRtView(), DirectX::Colors::CornflowerBlue);
-}
-
-void SwapChainPanelOutput2::EndRender() {
-	this->Present();
-}
-
-void SwapChainPanelOutput2::Resize(const DirectX::XMFLOAT2 &size) {
-	if (this->logicalSize.x != size.x || this->logicalSize.y != size.y) {
-		this->logicalSize = size;
-		this->CreateWindowSizeDependentResources();
-	}
 }
 
 void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
@@ -167,7 +196,7 @@ void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
 	H::System::ThrowIfFailed(hr);
 
 	{
-		auto viewport = this->GetScreenViewport();
+		auto viewport = this->GetD3DViewport();
 		auto ctx = this->dxDev->GetContext();
 
 		ctx->D3D()->RSSetViewports(1, &viewport);

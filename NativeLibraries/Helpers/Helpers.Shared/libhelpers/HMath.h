@@ -496,6 +496,21 @@ inline bool operator==(const D2D1::ColorF &a, const D2D1::ColorF &b) {
 	return res;
 }
 
+inline bool operator!=(const D2D1::ColorF &a, const D2D1::ColorF &b) {
+	bool res = !operator==(a, b);
+	return res;
+}
+
+inline bool operator==(const DirectX::XMFLOAT2 &a, const DirectX::XMFLOAT2 &b) {
+	bool res = a.x == b.x && a.y == b.y;
+	return res;
+}
+
+inline bool operator!=(const DirectX::XMFLOAT2 &a, const DirectX::XMFLOAT2 &b) {
+	bool res = !operator==(a, b);
+	return res;
+}
+
 inline DirectX::XMFLOAT3 operator/ (const DirectX::XMFLOAT3& a,
 	const DirectX::XMFLOAT3& b) {
 	return DirectX::XMFLOAT3(a.x / b.x,
