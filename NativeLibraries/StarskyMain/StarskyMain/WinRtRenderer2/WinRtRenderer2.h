@@ -49,7 +49,14 @@ public:
 		displayInformation->OrientationChanged += H::System::MakeTypedEventHandler(
 			[=](Windows::Graphics::Display::DisplayInformation ^sender, Platform::Object ^args)
 		{
-			int stop = 324;
+			thread::critical_section::scoped_lock lk(this->cs);
+			auto panel = this->output.GetSwapChainPanel();
+			auto orientation = sender->CurrentOrientation;
+			auto dpi = sender->LogicalDpi;
+			auto scale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
+			auto size = DirectX::XMFLOAT2((float)panel->ActualWidth, (float)panel->ActualHeight);
+
+			this->TryResize(size, scale, dpi, orientation);
 		});
 
 		displayInformation->DisplayContentsInvalidated += H::System::MakeTypedEventHandler(
@@ -63,11 +70,12 @@ public:
 		{
 			thread::critical_section::scoped_lock lk(this->cs);
 			auto panel = this->output.GetSwapChainPanel();
-			auto newDpi = sender->LogicalDpi;
-			auto newScale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
-			auto newSize = DirectX::XMFLOAT2((float)panel->ActualWidth, (float)panel->ActualHeight);
+			auto orientation = sender->CurrentOrientation;
+			auto dpi = sender->LogicalDpi;
+			auto scale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
+			auto size = DirectX::XMFLOAT2((float)panel->ActualWidth, (float)panel->ActualHeight);
 
-			this->TryResize(newSize, newScale, newDpi);
+			this->TryResize(size, scale, dpi, orientation);
 		});
 
 		panel->CompositionScaleChanged += H::System::MakeTypedEventHandler(
@@ -76,25 +84,27 @@ public:
 			auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 
 			thread::critical_section::scoped_lock lk(this->cs);
-			auto newDpi = displayInformation->LogicalDpi;
-			auto newScale = DirectX::XMFLOAT2(sender->CompositionScaleX, sender->CompositionScaleY);
-			auto newSize = DirectX::XMFLOAT2((float)sender->ActualWidth, (float)sender->ActualHeight);
+			auto orientation = displayInformation->CurrentOrientation;
+			auto dpi = displayInformation->LogicalDpi;
+			auto scale = DirectX::XMFLOAT2(sender->CompositionScaleX, sender->CompositionScaleY);
+			auto size = DirectX::XMFLOAT2((float)sender->ActualWidth, (float)sender->ActualHeight);
 
-			this->TryResize(newSize, newScale, newDpi);
+			this->TryResize(size, scale, dpi, orientation);
 		});
 
 		panel->SizeChanged += ref new Windows::UI::Xaml::SizeChangedEventHandler(
 			[=](Platform::Object ^sender, Windows::UI::Xaml::SizeChangedEventArgs ^args)
 		{
 			auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
-			auto newSize = DirectX::XMFLOAT2(args->NewSize.Width, args->NewSize.Height);
+			auto size = DirectX::XMFLOAT2(args->NewSize.Width, args->NewSize.Height);
 
 			thread::critical_section::scoped_lock lk(this->cs);
 			auto panel = this->output.GetSwapChainPanel();
-			auto newDpi = displayInformation->LogicalDpi;
-			auto newScale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
+			auto orientation = displayInformation->CurrentOrientation;
+			auto dpi = displayInformation->LogicalDpi;
+			auto scale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
 
-			this->TryResize(newSize, newScale, newDpi);
+			this->TryResize(size, scale, dpi, orientation);
 		});
 
 		this->renderer.OutputParametersChanged();
@@ -178,11 +188,22 @@ private:
 
 	// Need to inspect all parameters in order to use correct size parameters under windows 8.1
 	// Because under 8.1 it isn't reports events about all changes, for example it refers to DPI
-	void TryResize(const DirectX::XMFLOAT2 &newSize, const DirectX::XMFLOAT2 &newScale, float dpi) {
+	void TryResize(
+		const DirectX::XMFLOAT2 &newSize, 
+		const DirectX::XMFLOAT2 &newScale, 
+		float dpi, 
+		Windows::Graphics::Display::DisplayOrientations orientation) 
+	{
 		bool needResize = false;
+		auto oldOrientation = this->output.GetCurrentOrientation();
 		auto oldDpi = this->output.GetLogicalDpi();
 		auto oldScale = this->output.GetCompositionScale();
 		auto oldSize = this->output.GetLogicalSize();
+
+		if (orientation != oldOrientation) {
+			needResize = true;
+			this->output.SetCurrentOrientation(orientation);
+		}
 
 		if (dpi != oldDpi) {
 			needResize = true;

@@ -18,6 +18,8 @@ public:
 	virtual D3D11_VIEWPORT GetD3DViewport() const override;
 	virtual ID3D11RenderTargetView *GetD3DRtView() const override;
 	virtual ID2D1Bitmap1 *GetD2DRtView() const override;
+	virtual D2D1_MATRIX_3X2_F GetD2DOrientationTransform() const override;
+	virtual DirectX::XMFLOAT4X4 GetD3DOrientationTransform() const override;
 
 	Windows::UI::Xaml::Controls::SwapChainPanel ^GetSwapChainPanel() const;
 
@@ -25,6 +27,8 @@ public:
 	void SetLogicalSize(const DirectX::XMFLOAT2 &v);
 	DirectX::XMFLOAT2 GetCompositionScale() const;
 	void SetCompositionScale(const DirectX::XMFLOAT2 &v);
+	Windows::Graphics::Display::DisplayOrientations GetCurrentOrientation() const;
+	void SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations v);
 	void Resize();
 
 	void BeginRender();
@@ -41,6 +45,8 @@ private:
 
 	Windows::Graphics::Display::DisplayOrientations nativeOrientation;
 	Windows::Graphics::Display::DisplayOrientations currentOrientation;
+	D2D1_MATRIX_3X2_F d2dOrientationTransform;
+	DirectX::XMFLOAT4X4 d3dOrientationTransform;
 
 	float logicalDpi;
 	DirectX::XMFLOAT2 logicalSize;
@@ -51,6 +57,10 @@ private:
 	void CreateSwapChain();
 
 	void UpdatePresentationParameters();
+
+	DXGI_MODE_ROTATION ComputeDisplayRotation();
+	void SetRotationMatrices(DXGI_MODE_ROTATION rotation);
+
 	// Converts a length in device-independent pixels (DIPs) to a length in physical pixels.
-	float ConvertDipsToPixels(float dips, float dpi);
+	static float ConvertDipsToPixels(float dips, float dpi);
 };

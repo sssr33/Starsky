@@ -6,10 +6,49 @@
 #include <windows.ui.xaml.media.dxinterop.h>
 #include <libhelpers\H.h>
 
+using namespace Windows::Graphics::Display;
+
+// Constants used to calculate screen rotations.
+namespace ScreenRotation
+{
+	// 0-degree Z-rotation
+	static const DirectX::XMFLOAT4X4 Rotation0(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	// 90-degree Z-rotation
+	static const DirectX::XMFLOAT4X4 Rotation90(
+		0.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	// 180-degree Z-rotation
+	static const DirectX::XMFLOAT4X4 Rotation180(
+		-1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	// 270-degree Z-rotation
+	static const DirectX::XMFLOAT4X4 Rotation270(
+		0.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+};
+
 SwapChainPanelOutput2::SwapChainPanelOutput2(
 	raw_ptr<DxDevice> dxDev,
 	Windows::UI::Xaml::Controls::SwapChainPanel ^swapChainPanel)
-	: dxDev(dxDev), swapChainPanel(swapChainPanel), physicalSize(1.0f, 1.0f)
+	: dxDev(dxDev), swapChainPanel(swapChainPanel), physicalSize(1.0f, 1.0f),
+	d2dOrientationTransform(D2D1::IdentityMatrix()), d3dOrientationTransform(ScreenRotation::Rotation0)
 {
 	auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 
@@ -44,8 +83,8 @@ D3D11_VIEWPORT SwapChainPanelOutput2::GetD3DViewport() const {
 	viewport.TopLeftX = viewport.TopLeftY = 0.0f;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	viewport.Width = this->logicalSize.x;
-	viewport.Height = this->logicalSize.y;
+	viewport.Width = this->physicalSize.x;
+	viewport.Height = this->physicalSize.y;
 
 	return viewport;
 }
@@ -56,6 +95,14 @@ ID3D11RenderTargetView *SwapChainPanelOutput2::GetD3DRtView() const {
 
 ID2D1Bitmap1 *SwapChainPanelOutput2::GetD2DRtView() const {
 	return this->d2dTargetBitmap.Get();
+}
+
+D2D1_MATRIX_3X2_F SwapChainPanelOutput2::GetD2DOrientationTransform() const {
+	return this->d2dOrientationTransform;
+}
+
+DirectX::XMFLOAT4X4 SwapChainPanelOutput2::GetD3DOrientationTransform() const {
+	return this->d3dOrientationTransform;
 }
 
 Windows::UI::Xaml::Controls::SwapChainPanel ^SwapChainPanelOutput2::GetSwapChainPanel() const {
@@ -76,6 +123,14 @@ DirectX::XMFLOAT2 SwapChainPanelOutput2::GetCompositionScale() const {
 
 void SwapChainPanelOutput2::SetCompositionScale(const DirectX::XMFLOAT2 &v) {
 	this->compositionScale = v;
+}
+
+Windows::Graphics::Display::DisplayOrientations SwapChainPanelOutput2::GetCurrentOrientation() const {
+	return this->currentOrientation;
+}
+
+void SwapChainPanelOutput2::SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations v) {
+	this->currentOrientation = v;
 }
 
 void SwapChainPanelOutput2::Resize() {
@@ -138,6 +193,7 @@ void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
 			this->logicalDpi,
 			this->logicalDpi
 		);
+	DXGI_MODE_ROTATION displayRotation = this->ComputeDisplayRotation();
 
 	this->d3dRenderTargetView = nullptr;
 	this->d2dTargetBitmap = nullptr;
@@ -151,6 +207,10 @@ void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
 	}
 
 	this->UpdatePresentationParameters();
+
+	if (displayRotation == DXGI_MODE_ROTATION_ROTATE90 || displayRotation == DXGI_MODE_ROTATION_ROTATE270) {
+		std::swap(this->physicalSize.x, this->physicalSize.y);
+	}
 
 	if (this->swapChain) {
 		this->swapChain->ResizeBuffers(
@@ -182,9 +242,14 @@ void SwapChainPanelOutput2::CreateWindowSizeDependentResources() {
 		this->d2dTargetBitmap.GetAddressOf());
 	H::System::ThrowIfFailed(hr);
 
+	this->SetRotationMatrices(displayRotation);
+
 	Microsoft::WRL::ComPtr<IDXGISwapChain2> swapChain2;
 
 	hr = this->swapChain.As(&swapChain2);
+	H::System::ThrowIfFailed(hr);
+
+	hr = swapChain2->SetRotation(displayRotation);
 	H::System::ThrowIfFailed(hr);
 
 	DXGI_MATRIX_3X2_F swapchainTransform = { 0 };
@@ -278,6 +343,96 @@ void SwapChainPanelOutput2::UpdatePresentationParameters() {
 
 	this->physicalSize.x = this->ConvertDipsToPixels(this->logicalSize.x, this->logicalDpi);
 	this->physicalSize.y = this->ConvertDipsToPixels(this->logicalSize.y, this->logicalDpi);
+}
+
+// This method determines the rotation between the display device's native orientation and the
+// current display orientation.
+DXGI_MODE_ROTATION SwapChainPanelOutput2::ComputeDisplayRotation() {
+	DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
+
+	// Note: NativeOrientation can only be Landscape or Portrait even though
+	// the DisplayOrientations enum has other values.
+	switch (this->nativeOrientation) {
+	case DisplayOrientations::Landscape:
+		switch (this->currentOrientation) {
+		case DisplayOrientations::Landscape:
+			rotation = DXGI_MODE_ROTATION_IDENTITY;
+			break;
+
+		case DisplayOrientations::Portrait:
+			rotation = DXGI_MODE_ROTATION_ROTATE270;
+			break;
+
+		case DisplayOrientations::LandscapeFlipped:
+			rotation = DXGI_MODE_ROTATION_ROTATE180;
+			break;
+
+		case DisplayOrientations::PortraitFlipped:
+			rotation = DXGI_MODE_ROTATION_ROTATE90;
+			break;
+		}
+		break;
+
+	case DisplayOrientations::Portrait:
+		switch (this->currentOrientation) {
+		case DisplayOrientations::Landscape:
+			rotation = DXGI_MODE_ROTATION_ROTATE90;
+			break;
+
+		case DisplayOrientations::Portrait:
+			rotation = DXGI_MODE_ROTATION_IDENTITY;
+			break;
+
+		case DisplayOrientations::LandscapeFlipped:
+			rotation = DXGI_MODE_ROTATION_ROTATE270;
+			break;
+
+		case DisplayOrientations::PortraitFlipped:
+			rotation = DXGI_MODE_ROTATION_ROTATE180;
+			break;
+		}
+		break;
+	}
+
+	return rotation;
+}
+
+void SwapChainPanelOutput2::SetRotationMatrices(DXGI_MODE_ROTATION rotation) {
+	// Set the proper orientation for the swap chain, and generate 2D and
+	// 3D matrix transformations for rendering to the rotated swap chain.
+	// Note the rotation angle for the 2D and 3D transforms are different.
+	// This is due to the difference in coordinate spaces.  Additionally,
+	// the 3D matrix is specified explicitly to avoid rounding errors.
+	switch (rotation) {
+	case DXGI_MODE_ROTATION_IDENTITY:
+		this->d2dOrientationTransform = D2D1::Matrix3x2F::Identity();
+		this->d3dOrientationTransform = ScreenRotation::Rotation0;
+		break;
+
+	case DXGI_MODE_ROTATION_ROTATE90:
+		this->d2dOrientationTransform =
+			D2D1::Matrix3x2F::Rotation(90.0f) *
+			D2D1::Matrix3x2F::Translation(this->logicalSize.y, 0.0f);
+		this->d3dOrientationTransform = ScreenRotation::Rotation270;
+		break;
+
+	case DXGI_MODE_ROTATION_ROTATE180:
+		this->d2dOrientationTransform =
+			D2D1::Matrix3x2F::Rotation(180.0f) *
+			D2D1::Matrix3x2F::Translation(this->logicalSize.x, this->logicalSize.y);
+		this->d3dOrientationTransform = ScreenRotation::Rotation180;
+		break;
+
+	case DXGI_MODE_ROTATION_ROTATE270:
+		this->d2dOrientationTransform =
+			D2D1::Matrix3x2F::Rotation(270.0f) *
+			D2D1::Matrix3x2F::Translation(0.0f, this->logicalSize.x);
+		this->d3dOrientationTransform = ScreenRotation::Rotation90;
+		break;
+
+	default:
+		throw ref new Platform::FailureException();
+	}
 }
 
 float SwapChainPanelOutput2::ConvertDipsToPixels(float dips, float dpi) {
