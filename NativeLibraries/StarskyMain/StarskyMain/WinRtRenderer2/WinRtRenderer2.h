@@ -7,13 +7,19 @@
 #include <type_traits>
 #include <libhelpers\Thread\critical_section.h>
 
+enum class RenderThreadState {
+	Work,
+	Pause, // can be changed to Work to let thread continue and not exit
+	Stop, // thread will exit very soon
+};
+
 template<class T>
 class WinRtRenderer2 {
 public:
 	WinRtRenderer2(
 		Windows::UI::Xaml::Controls::SwapChainPanel ^panel)
 		: output(&this->dxDev, panel),
-		renderer(&this->dxDev, &this->output), renderWorking(true)
+		renderer(&this->dxDev, &this->output), renderThreadState(RenderThreadState::Stop)
 	{
 		auto window = Windows::UI::Xaml::Window::Current->CoreWindow;
 		auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
@@ -21,7 +27,23 @@ public:
 		window->VisibilityChanged += H::System::MakeTypedEventHandler(
 			[=](Windows::UI::Core::CoreWindow ^sender, Windows::UI::Core::VisibilityChangedEventArgs ^args)
 		{
-			int stop = 324;
+			thread::critical_section::scoped_lock lk(this->renderThreadStateCs);
+
+			if (!args->Visible) {
+				this->renderThreadState = RenderThreadState::Pause;
+			}
+			else {
+				if (this->renderThreadState == RenderThreadState::Stop) {
+					if (this->renderThread.joinable()) {
+						this->renderThread.join();
+					}
+
+					this->StartRenderThread();
+				}
+				else {
+					this->renderThreadState = RenderThreadState::Work;
+				}
+			}
 		});
 
 		displayInformation->OrientationChanged += H::System::MakeTypedEventHandler(
@@ -39,7 +61,7 @@ public:
 		displayInformation->DpiChanged += H::System::MakeTypedEventHandler(
 			[=](Windows::Graphics::Display::DisplayInformation ^sender, Platform::Object ^args)
 		{
-			thread::critical_section::scoped_lock lk(this->lk);
+			thread::critical_section::scoped_lock lk(this->cs);
 			auto panel = this->output.GetSwapChainPanel();
 			auto newDpi = sender->LogicalDpi;
 			auto newScale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
@@ -53,7 +75,7 @@ public:
 		{
 			auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 
-			thread::critical_section::scoped_lock lk(this->lk);
+			thread::critical_section::scoped_lock lk(this->cs);
 			auto newDpi = displayInformation->LogicalDpi;
 			auto newScale = DirectX::XMFLOAT2(sender->CompositionScaleX, sender->CompositionScaleY);
 			auto newSize = DirectX::XMFLOAT2((float)sender->ActualWidth, (float)sender->ActualHeight);
@@ -67,7 +89,7 @@ public:
 			auto displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 			auto newSize = DirectX::XMFLOAT2(args->NewSize.Width, args->NewSize.Height);
 
-			thread::critical_section::scoped_lock lk(this->lk);
+			thread::critical_section::scoped_lock lk(this->cs);
 			auto panel = this->output.GetSwapChainPanel();
 			auto newDpi = displayInformation->LogicalDpi;
 			auto newScale = DirectX::XMFLOAT2(panel->CompositionScaleX, panel->CompositionScaleY);
@@ -77,12 +99,15 @@ public:
 
 		this->renderer.OutputParametersChanged();
 
-		this->renderThread = std::thread([=]() { this->Render(); });
+		this->StartRenderThread();
 		this->inputThread = std::thread([=]() { this->Input(panel); });
 	}
 
 	~WinRtRenderer2() {
 		static_assert(std::is_base_of<IRenderer, T>::value, "Renderer must inherit from IRenderer");
+
+		this->renderThreadState = RenderThreadState::Stop;
+		this->coreInput->Dispatcher->StopProcessEvents();
 
 		if (this->renderThread.joinable()) {
 			this->renderThread.join();
@@ -98,14 +123,15 @@ private:
 	SwapChainPanelOutput2 output;
 	T renderer;
 
-	thread::critical_section lk;
+	thread::critical_section cs;
 
 	Windows::UI::Core::CoreIndependentInputSource ^coreInput;
 
 	std::thread renderThread;
 	std::thread inputThread;
 
-	bool renderWorking;
+	thread::critical_section renderThreadStateCs;
+	RenderThreadState renderThreadState;
 
 	void Input(Windows::UI::Xaml::Controls::SwapChainPanel ^panel) {
 		this->coreInput = panel->CreateCoreIndependentInputSource(
@@ -124,13 +150,30 @@ private:
 	}
 
 	void Render() {
-		while (this->renderWorking) {
-			thread::critical_section::scoped_yield_lock lk(this->lk);
+		while (this->CheckRenderThreadState()) {
+			thread::critical_section::scoped_yield_lock lk(this->cs);
 
 			this->output.BeginRender();
 			this->renderer.Render();
 			this->output.EndRender();
 		}
+	}
+
+	bool CheckRenderThreadState() {
+		bool continueWork = true;
+		thread::critical_section::scoped_yield_lock lk(this->renderThreadStateCs);
+
+		if (this->renderThreadState != RenderThreadState::Work) {
+			continueWork = false;
+			this->renderThreadState = RenderThreadState::Stop;
+		}
+
+		return continueWork;
+	}
+
+	void StartRenderThread() {
+		this->renderThreadState = RenderThreadState::Work;
+		this->renderThread = std::thread([=]() { this->Render(); });
 	}
 
 	// Need to inspect all parameters in order to use correct size parameters under windows 8.1

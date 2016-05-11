@@ -38,7 +38,9 @@ void DxDevice::CreateDeviceDependentResources() {
 	Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2dCtx;
 
 #ifdef _DEBUG
-	flags |= D3D11_CREATE_DEVICE_DEBUG;
+	if (DxDevice::SdkLayersAvailable()) {
+		flags |= D3D11_CREATE_DEVICE_DEBUG;
+	}
 #endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
@@ -130,4 +132,21 @@ Microsoft::WRL::ComPtr<ID2D1DeviceContext> DxDevice::CreateD2DDeviceContext() {
 	H::System::ThrowIfFailed(hr);
 
 	return d2dCtx;
+}
+
+bool DxDevice::SdkLayersAvailable() {
+	HRESULT hr = D3D11CreateDevice(
+		nullptr,
+		D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
+		0,
+		D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
+		nullptr,                    // Any feature level will do.
+		0,
+		D3D11_SDK_VERSION,          // Always set this to D3D11_SDK_VERSION for Windows Store apps.
+		nullptr,                    // No need to keep the D3D device reference.
+		nullptr,                    // No need to know the feature level.
+		nullptr                     // No need to keep the D3D device context reference.
+	);
+
+	return SUCCEEDED(hr);
 }

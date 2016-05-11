@@ -32,4 +32,7 @@ private:
 	void EnableD3DDeviceMultithreading();
 	void CreateD2DDevice();
 	Microsoft::WRL::ComPtr<ID2D1DeviceContext> CreateD2DDeviceContext();
+
+	// Check for SDK Layer support.
+	static bool SdkLayersAvailable();
 };
