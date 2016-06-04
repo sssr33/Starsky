@@ -46,4 +46,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)WinRtRenderer2\SwapChainPanelOutput2.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StarskyRenderer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Hlsl\SimpleVs.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)Hlsl\SimplePs.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)Hlsl\SimpleAntialiasVs.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)Hlsl\SimpleAntialiasPs.hlsl" />
+  </ItemGroup>
 </Project>

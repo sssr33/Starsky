@@ -35,9 +35,9 @@ namespace thread {
 			lock_yielder() {
 				// http://stackoverflow.com/questions/17325888/c11-thread-waiting-behaviour-stdthis-threadyield-vs-stdthis-thread
 				// http://stackoverflow.com/questions/3992715/critical-section-problem-in-windows-7
-				std::this_thread::sleep_for(std::chrono::nanoseconds(1)); // ok, nanotechnology is on duty
-				//Sleep(1); - almost ok, but this is a whole 1 millisecond!
-				//std::this_thread::yield(); - a bit better
+				//std::this_thread::sleep_for(std::chrono::nanoseconds(1)); // ok, nanotechnology is on duty
+				Sleep(1); // - almost ok, but this is a whole 1 millisecond!
+				//std::this_thread::yield(); // - a bit better
 				//Sleep(0);// - better
 				// no wait - works really bad for fast lock/unlock scenarios
 			}

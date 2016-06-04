@@ -144,7 +144,7 @@ void SwapChainPanelOutput2::BeginRender() {
 
 	ctx->D3D()->OMSetRenderTargets(1, targets, nullptr);
 
-	ctx->D3D()->ClearRenderTargetView(this->GetD3DRtView(), DirectX::Colors::CornflowerBlue);
+	ctx->D3D()->ClearRenderTargetView(this->GetD3DRtView(), DirectX::Colors::Black);
 }
 
 void SwapChainPanelOutput2::EndRender() {
