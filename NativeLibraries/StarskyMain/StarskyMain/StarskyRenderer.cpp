@@ -29,10 +29,16 @@ StarskyRenderer::StarskyRenderer(raw_ptr<DxDevice> dxDev, raw_ptr<IOutput> outpu
 
 		D3D11_SUBRESOURCE_DATA bufData;
 
-		DirectX::XMFLOAT2 geomData[] = {
+		/*DirectX::XMFLOAT2 geomData[] = {
 			DirectX::XMFLOAT2(0.0f, 0.5f),
-			DirectX::XMFLOAT2(0.5f, -0.5f),
-			DirectX::XMFLOAT2(-0.5f, -0.5f)
+			DirectX::XMFLOAT2(0.0f, -0.5f),
+			DirectX::XMFLOAT2(-0.75f, -0.5f)
+		};*/
+
+		DirectX::XMFLOAT2 geomData[] = {
+			DirectX::XMFLOAT2(-100.5f, 100.0f),
+			DirectX::XMFLOAT2(100.0f, 100.0f),
+			DirectX::XMFLOAT2(-100.5f, -100.0f)
 		};
 
 		bufDesc.ByteWidth = sizeof(geomData);
@@ -165,7 +171,7 @@ void StarskyRenderer::Render() {
 
 	//transformObj = DirectX::XMMatrixMultiply(transformObj, DirectX::XMMatrixScaling(scale, scale, scale));
 	//transformObj = DirectX::XMMatrixMultiply(transformObj, DirectX::XMMatrixRotationZ(timer));
-	transformObj = DirectX::XMMatrixMultiply(transformObj, DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-22)));
+	//transformObj = DirectX::XMMatrixMultiply(transformObj, DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-22)));
 
 	proj = DirectX::XMMatrixMultiply(transformObj, proj);
 	
@@ -193,7 +199,7 @@ void StarskyRenderer::Render() {
 	d3dCtx->PSSetShader(this->ps.Get(), nullptr, 0);
 
 	d3dCtx->Draw(3, 0);
-
+	return;
 
 	// line
 
@@ -223,6 +229,9 @@ void StarskyRenderer::Render() {
 			AntialiasData res;
 			auto pt0 = DirectX::XMLoadFloat2(&this->antialiasData[i]);
 			auto pt1 = DirectX::XMLoadFloat2(&this->antialiasData[(i + 1) % this->antialiasData.size()]);
+
+			pt0.ZF = pt0.WF = 1.0f;
+			pt1.ZF = pt1.WF = 1.0f;
 
 			/*pt0 = DirectX::XMVector3Project(
 				pt0, 
@@ -278,7 +287,8 @@ void StarskyRenderer::OutputParametersChanged() {
 	auto size = this->output->GetLogicalSize();
 	float ar = (float)size.x / (float)size.y;
 
-	auto proj = DirectX::XMMatrixOrthographicLH(2.0f * ar, 2.0f, 0.001f, 10.0f);
+	//auto proj = DirectX::XMMatrixOrthographicLH(2.0f * ar, 2.0f, 0.001f, 10.0f);
+	auto proj = DirectX::XMMatrixScaling(2.0f / size.x, 2.0f / size.y, 1.0f);
 	DirectX::XMStoreFloat4x4(&this->projection, proj);
 }
 

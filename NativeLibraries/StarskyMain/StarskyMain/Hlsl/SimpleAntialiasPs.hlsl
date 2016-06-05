@@ -39,7 +39,15 @@ float2 pt1 = input.pt1;
 		curPt = 1.0f - curPt;
 	}*/
 
-	alpha = (curPt.x * abs(vec.x) + curPt.y * abs(vec.y));
+	//alpha = (curPt.x * abs(vec.x) + curPt.y * abs(vec.y));
+	//alpha = abs(vec.x) * abs(vec.y);
+
+	if (vec2.x >= vec2.y) {
+		alpha = curPt.x;
+	}
+	else {
+		alpha = curPt.y;
+	}
 
 	float4 finalColor = color * alpha;
 
